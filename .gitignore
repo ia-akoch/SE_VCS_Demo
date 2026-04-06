@@ -41,4 +41,7 @@
 **/.alarms_*
 
 # local environmental variables for Docker
-.env
+*.env
+
+# ignition.conf file for different environments
+**/ignition.conf

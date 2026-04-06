@@ -18,6 +18,8 @@ Run the following command to create a git repo there:
 git init .
 ```
 
+*Note: Note where the git repo is being intialized. Customers just doing vcs on their config and projects will likely initialize this on the data directory. We are only doing this at this higher folder level because our entire demo config, projects, and deployment is what is being version controlled.
+
 Create a remote remote repo in GitHub
 
 Then run add the remote repo:
@@ -69,15 +71,19 @@ Open the repo in Github to see your changes reflected there
 ## Part 3 - Best practices and guidance
 ### What files to version control?
 Take an additive approach. Create the local git repo in a directory that contains the files you care about tracking, and as few other as possible. 
-For example, if you only care about projects and no config. Create your local repo on the data/projects directory.
-If you want both projects and config items and are using a more advanced deployment method, only persist the data/projects and data/config/resources directories to the host file system. They create the local repo on a folder where both of those are persisted.
+For example: If you only care about projects and not config, create your local repo on the data/projects directory.
+
+### The .gitignore file
+The ["Version and Source Control Guide"](https://docs.inductiveautomation.com/docs/8.3/tutorials/version-control-guide) from the Ignition User Manual provides a lot of guidance on version control with Ignition. One of the examples on that page is of a .gitignore file for a gateway tracking the entire data directory. The .gitignore file holds a list of the paths to items that you would like git to not track. For Ignition many of these files are going to be local-only files. Things like files that hold local memory tag values, logs, and certs. I've also added the ignition.conf file to my gitignore. The reasoning for this is to be able to provide different deployment modes in the ignition.conf file.
 
 ### Deployment modes for different environments
+#### But why?
 If you have the system-properties/config.json file tracked as part of your git repo you will notice that it holds the gateway name.
-Where this can cause issues is when the config directory is being tracked for config changes and you want gateways across different environments to use the same remote repo, but have different gateway names. The recommended solution for keeping gateway names unique to each gateway and not having that interfere with the controlled files is to use deployment modes. Create an override for each of your environments and update the name for that environments respective mode.
+(Go to services/data/config/resources/core/ignition/system-properties and view the "systemName" property.)
+Where this can cause issues is when the config directory is being tracked for config changes and you want gateways across different environments to use the same remote repo, but have different gateway names. A recommended solution for keeping gateway names unique to each gateway and not having that interfere with the controlled files is to use Ignition's deployment modes. Create an override for each of your environments and update the name for that environments respective mode.
 
-### Potential Permission issues when persisting both Docker named volumes and bind mounts
-As discussed above, it can be beneficial to only track the directories you want with your vcs efforts. However, if you are using a deployment method like Docker and persisting just the projects and/or config directory you may notice that the gateway itself will lose all the local files that make it a unique deployment whenever you re-spin up that gateway. You can persist the entirety of the data directory in a Docker named volume alongside the specific directories that are persisted to the host file system. Doing this can cause potential permission issues, as the container user that is creating the volumes may not have access to create the needed files on the host system. To allow this to run you can start the container with user: 0:0 to run as root. We also recommend supplying the IGNITION_UID and IGNITION_GID for security reasons to run the Ignition service in the container as a specifically created application service account.
+#### A look at how to create a deployment mode
+
 
 ## Part 4 - Clone to Prod environment
 
@@ -186,5 +192,4 @@ Run the file system scan again. This time for both the config and project files:
         ```
 
 Open the project on the prod environment to view changes.
-
 
