@@ -1,7 +1,0 @@
-{
-  "title": "prod",
-  "description": "mode for production system",
-  "enabled": true,
-  "inheritable": true,
-  "parent": "core"
-}

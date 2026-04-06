@@ -23,8 +23,6 @@ services:
       - ${IGN_PORT:-8089}:8088
     volumes:
       - ign-demo-vcs-modes-data:/usr/local/bin/ignition/data
-      - ign-demo-vcs-modes-resources:/usr/local/bin/ignition/data/config/resources
-      - ign-demo-vcs-modes-projects:/usr/local/bin/ignition/data/projects
     labels:
       - traefik.enable=true
       - traefik.hostname=${IGN_NAME:-demo-vcs-modes-dev}
@@ -71,17 +69,10 @@ networks:
 
 volumes:
   ign-demo-vcs-modes-data:
-  ign-demo-vcs-modes-resources:
     driver: local
     driver_opts:
       type: none
-      device: services/config/resources
-      o: bind
-  ign-demo-vcs-modes-projects:
-    driver: local
-    driver_opts:
-      type: none
-      device: services/projects
+      device: services/data
       o: bind
   postgresVcsDemo:
 
