@@ -80,10 +80,14 @@ The ["Version and Source Control Guide"](https://docs.inductiveautomation.com/do
 #### But why?
 If you have the system-properties/config.json file tracked as part of your git repo you will notice that it holds the gateway name.
 (Go to services/data/config/resources/core/ignition/system-properties and view the "systemName" property.)
-Where this can cause issues is when the config directory is being tracked for config changes and you want gateways across different environments to use the same remote repo, but have different gateway names. A recommended solution for keeping gateway names unique to each gateway and not having that interfere with the controlled files is to use Ignition's deployment modes. Create an override for each of your environments and update the name for that environments respective mode.
+Where this can cause issues is when the config directory is being tracked for config changes and you want gateways across different environments to use the same remote repo, but have different gateway names. A recommended solution for keeping gateway names unique to each gateway and not having that interfere with the controlled files is to use Ignition's deployment modes. Create an override for each of your environments and update the name for that environments respective mode. Deployment Modes can also be great practice for other settings that need to be unique across different evironments.
 
 #### A look at how to create a deployment mode
-
+Open the ignition.conf file and add the following line to the "Java Additional Parameters" section.
+```
+wrapper.java.additional.<num>=-Dignition.config.mode=dev
+```
+Where the num param is the next number in the sequence of params.
 
 ## Part 4 - Clone to Prod environment
 
