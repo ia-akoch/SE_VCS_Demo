@@ -185,6 +185,6 @@ Run the file system scan again. This time for both the config and project files:
         http://<gateway-URL>/data/api/v1/scan/projects
         ```
 
-Open the project on the prod environment to view changes.
+After the scan is finished, open the project on the prod environment to view changes.
 
 
