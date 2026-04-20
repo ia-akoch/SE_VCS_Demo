@@ -1,0 +1,69 @@
+name: Deploy to Prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag to deploy — leave as 'latest' to auto-detect"
+        required: true
+        default: "latest"
+
+jobs:
+  resolve-version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+
+    steps:
+      - name: Resolve version
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT: ${{ github.event.inputs.version }}
+        run: |
+          if [ "$INPUT" = "latest" ]; then
+            VERSION=$(gh release list --repo "${{ github.repository }}" --limit 1 --json tagName --jq '.[0].tagName')
+            echo "Resolved latest: $VERSION"
+          else
+            VERSION="$INPUT"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Deploy ${{ needs.resolve-version.outputs.version }} to prod
+    needs: resolve-version
+    runs-on: [self-hosted, prod]
+    environment: prod
+
+    steps:
+      - name: Take ownership for git
+        run: sudo chown -R se-admin:se-admin "${{ vars.REPO_PATH }}"
+
+      - name: Fetch and reset to version
+        run: |
+          git -C "${{ vars.REPO_PATH }}" fetch --tags origin
+          git -C "${{ vars.REPO_PATH }}" reset --hard "${{ needs.resolve-version.outputs.version }}"
+
+      - name: Restore shared permissions
+        run: |
+          sudo chown -R 2003:se-admin "${{ vars.REPO_PATH }}"
+          sudo chmod -R ug+w "${{ vars.REPO_PATH }}"
+
+      - name: Scan Config Updates
+        run: |
+          HOST_IP=$(hostname -I | awk '{print $1}')
+          RESPONSE=$(curl -s --max-time 10 -X POST "http://${HOST_IP}:${{ vars.GATEWAY_PORT }}/data/api/v1/scan/config" \
+            -H "X-Ignition-API-Token: ${{ secrets.IGNITION_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{}')
+          echo "Config scan response: $RESPONSE"
+
+      - name: Scan Project Updates
+        run: |
+          HOST_IP=$(hostname -I | awk '{print $1}')
+          RESPONSE=$(curl -s --max-time 10 -X POST "http://${HOST_IP}:${{ vars.GATEWAY_PORT }}/data/api/v1/scan/projects" \
+            -H "X-Ignition-API-Token: ${{ secrets.IGNITION_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{}')
+          echo "Projects scan response: $RESPONSE"
