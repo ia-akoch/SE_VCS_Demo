@@ -76,10 +76,4 @@ So in Summary, we use Github Actions to standardize our Releases and deployments
 2. Release: Run "Create Release" to tag the code.
 3. Deploy to Test: Run "Deploy to Test." GitHub connects to the server, pulls the specific tag, resets the files, and tells Ignition to refresh.
 4. Deploy to Prod: Once Test is confirmed, run "Deploy to Prod" to move the exact same code to the live environment.
-
-
-## Creating Github Actions, Runners, and Environments
-### Github Actions
-The Github Actions are a part of the repo already under .github/workflows. Therefore these should already be availalbe under the Actions tab in your Github repo. 
-
-If they are not define the workflows in .github/workflows in your directory and push these files to Github Repo 
+5. Next we will talk about how to create the automations with sefl hosted runners and github environements.
