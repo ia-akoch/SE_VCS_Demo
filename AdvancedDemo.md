@@ -39,15 +39,15 @@ Whenever your repo hits a state that you want to promote to production, it can b
 ### Let's create a release!
 Instead of manually typing git tag in a terminal, we can use a GitHub Action to standardize our release process. This ensures that every release follows the same versioning schema and automatically generates a changelog.
 
-Open create-release.yml in Github under Actions>Create Release>create-release.yml.
+Open create-release.yml in Github under Actions > Create Release > create-release.yml.
 
 - Trigger: Notice this uses workflow_dispatch. This means the release is intentional—a human (the SE or Dev) triggers it from the GitHub UI when they are ready to "freeze" a version of the code.
 - Version Auto-generation: If the user leaves the version as auto, the script uses a shell command to generate a timestamp: yyyy.mm.dd.hh.ss. This ensures uniqueness without having to track "v1, v2, v3" manually during a fast-moving demo.
 - Automated Changelog: The script uses gh release list and git log to find every commit made since the last release. It automatically formats these into a markdown file, so your release notes are always accurate to the code.
 - GitHub CLI: We use the gh release create command. This not only tags the commit but creates a formal Release object in GitHub that our deployment scripts can then "look up."
 
-Create new release by going back to Actions>Create Release and "Run Workflow", keep the 'auto' tag to automatically tag the release according to the .yml
-1. selecting run workflow will tak you to a summary page where you can click on the action and view the process got executed.
+Create new release by going back to **Actions > Create Release > Run Workflow**, keep the 'auto' tag to automatically tag the release according to the .yml
+1. selecting run workflow will take you to a summary page where you can click on the action and view the process excecution.
 2. Go to the Code tab at the top of the page to view the Releases section on the right side to view the release that just got created. Click on this release to see all the commits that were included in this release.
 
 ## Part 3 - Github Deployment Actions, Runners, and Environment Variables
