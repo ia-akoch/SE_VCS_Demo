@@ -18,34 +18,24 @@ Each environment needs its own runner. Start with the test server.
 
 1. In your GitHub repository, go to **Settings > Actions > Runners**
 2. Click **New self-hosted runner**
-3. Select the operating system of your test server (Linux for a typical Ignition deployment)
-4. GitHub will generate a set of commands specific to your repo. Run those commands on the test server to download and extract the runner package:
-```bash
-mkdir actions-runner && cd actions-runner
-curl -o actions-runner-linux-x64-<version>.tar.gz -L https://github.com/actions/runner/releases/download/...
-tar xzf ./actions-runner-linux-x64-<version>.tar.gz
-```
-5. Run the configure command GitHub provides. When prompted for labels, **add `test`** as an additional label alongside the defaults:
-```bash
-./config.sh --url https://github.com/<owner>/<repo> --token <runner-token> --labels test
-```
-6. Install and start the runner as a system service so it survives reboots:
-```bash
-sudo ./svc.sh install
-sudo ./svc.sh start
-```
-7. Back in GitHub under **Settings > Actions > Runners**, you should see the runner appear as **Idle** within a few seconds
+3. Select the operating system of your test server (Linux is used in this example)
+4. GitHub will generate a set of commands specific to your repo based on the OS selected. Run those commands on the server to Download the runner package
+- Note: these are the questions you will be asked:
+
+5. Now go through the generated commands for the Configure section. Here are the settings that are used for this example:
+-- "Enter the name of the runner group to add this runner to: [press Enter for Defualt]" This example will use the default
+-- "Enter the name of the runner:" This example will use 'test' and 'prod' respectively
+-- "Enter any additional labels:" This example will not enter any additional
+-- "Enter name of work folder: [press Enter for _work]" This example will use the default '_work' folder
+6. If done correctly, back in GitHub under **Settings > Actions > Runners**, you should see the runner appear as **Idle** within a few seconds
 
 ### Install the runner on the prod server
 Repeat the exact same steps on the prod server, but use `prod` as the additional label during configuration:
-```bash
-./config.sh --url https://github.com/<owner>/<repo> --token <runner-token> --labels prod
-```
 
-After both runners are installed you will have two runners listed under Settings > Actions > Runners — one tagged `test` and one tagged `prod`.
+After both runners are installed you will have two runners listed under Settings > Actions > Runners — one named `test` and one named `prod`.
 
 ### A note on runner permissions
-The deployment workflow uses `sudo chown` and `sudo chmod` to temporarily take ownership of the repository path for git operations. The runner service account (`se-admin` in this demo) will need passwordless sudo access for those specific commands. If you see permission errors during deployment, that is the first place to check.
+The deployment workflow uses `sudo chown` and `sudo chmod` to temporarily take ownership of the repository path for git operations. The account that the runner service will need passwordless sudo access for those specific commands. If you see permission errors during deployment, that is the first place to check.
 
 
 ## Part 2 - GitHub Environments
@@ -63,31 +53,28 @@ There are two types of configuration stored in an environment:
 3. Name it `test` (must match exactly what is in deploy-to-test.yml) and click **Configure environment**
 
 ### Add variables to test
-Under the **Environment variables** section, click **Add variable** for each of the following:
+Under the **Environment variables** section, click **Add environment variable** for each of the following:
 
 | Name | Value |
 |---|---|
-| `REPO_PATH` | Absolute path to the cloned repository on the test server (e.g. `/home/se-admin/git-testing/test`) |
-| `GATEWAY_PORT` | Port the test Ignition gateway is listening on (e.g. `8088`) |
+| `REPO_PATH` | Absolute path to the local repository on the  server (e.g. `/path/to/local/repo`) |
+| `GATEWAY_PORT` | Port the  Ignition gateway is listening on (e.g. `8088`) |
 
 ### Add the secret to test
 Under the **Environment secrets** section, click **Add secret**:
 
 | Name | Value |
 |---|---|
-| `IGNITION_API_TOKEN` | API token from the test Ignition gateway |
+| `IGNITION_API_TOKEN` | API token from the Ignition gateway |
 
-To find or generate an Ignition API token, navigate to the gateway web UI at **Config > Security > API Tokens**.
+To find or generate an Ignition API token, start the Docker stack which includes the Ignition gateway, go to the gateway webpages, and navigate to **Platform > Security > API Keys**. Keep in mind any security roles that you may want to incorporate with this API key.
+https://docs.inductiveautomation.com/docs/8.3/platform/security/api-keys
 
 ### Create the prod environment
 Repeat the same steps to create a second environment named `prod`:
 1. **Settings > Environments > New environment**, name it `prod`
 2. Add the same two variables with values pointing to the prod server
 3. Add the `IGNITION_API_TOKEN` secret using the prod gateway's token
-
-### Optional: Add a protection rule to prod
-A common practice is to require a manual approval before any workflow can deploy to production. In the prod environment configuration, enable **Required reviewers** and add yourself or your team. This means the Deploy to Prod workflow will pause and wait for an explicit approval before the runner executes on the prod server.
-
 
 ## Summary
 The one-time configuration required to support automated deployments is:
