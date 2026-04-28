@@ -1,0 +1,20 @@
+{
+  "scope": "A",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "export1.png"
+  ],
+  "attributes": {
+    "width": 48,
+    "format": "PNG",
+    "lastModification": {
+      "actor": "import",
+      "timestamp": "2026-04-28T15:46:42Z"
+    },
+    "size": 694,
+    "lastModificationSignature": "d8057f058c57529252a8d3d8bb5b559a7c35991677ffafc1d2931de4f9f94602",
+    "height": 48
+  }
+}
