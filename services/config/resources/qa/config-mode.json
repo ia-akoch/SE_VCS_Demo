@@ -1,0 +1,7 @@
+{
+  "title": "qa",
+  "description": "Deployment mode for qa environment",
+  "enabled": true,
+  "inheritable": true,
+  "parent": "core"
+}
