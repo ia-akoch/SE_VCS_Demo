@@ -40,7 +40,7 @@ services:
       -n ${IGN_NAME:-demo-vcs-modes-dev}
       -h 80
       -s 443
-      -a ${IGN_NAME:-demo-vcs-modes-dev}.sedemo.ia.local
+      -a ${IGN_NAME:-demo-vcs-modes-dev}.${HOST_PROXY:-sedemo.ia.local}
       --
       -Dignition.config.mode=${IGN_MODE:-dev}
     networks:

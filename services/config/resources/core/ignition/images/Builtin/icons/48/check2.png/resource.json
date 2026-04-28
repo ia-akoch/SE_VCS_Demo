@@ -1,0 +1,20 @@
+{
+  "scope": "A",
+  "version": 1,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "check2.png"
+  ],
+  "attributes": {
+    "width": 48,
+    "format": "PNG",
+    "lastModification": {
+      "actor": "import",
+      "timestamp": "2026-04-28T15:46:42Z"
+    },
+    "size": 1075,
+    "lastModificationSignature": "9f2c62b2a2545bf76fa781a5140b75c059e32a0ab7ace78851e5b4b409b527b7",
+    "height": 48
+  }
+}

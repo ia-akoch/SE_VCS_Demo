@@ -1,11 +1,16 @@
 {
   "scope": "A",
-  "description": "Quick Start Configuration",
   "version": 1,
   "restricted": false,
   "overridable": true,
   "files": [
     "config.json"
   ],
-  "attributes": {}
+  "attributes": {
+    "lastModification": {
+      "actor": "unknown",
+      "timestamp": "2026-04-28T15:47:33Z"
+    },
+    "lastModificationSignature": "e62c3c905cdb230ab40cccfa76a7a358cc2949aab3b2c6f3eebf073942fdf533"
+  }
 }
