@@ -11,11 +11,13 @@
 ##################################################################
 services:
   # Ignition dev gateway. Engineering workstation 1
-  # access gateway with http://{IGN_NAME}.pde-021.ia.local
+  # access gateway with http://{IGN_NAME}.{HOST_PROXY}
   # where IGN_NAME is the value of the IGN_NAME env variable
   demo-vcs-modes:
-    image: inductiveautomation/ignition:${IGN_RELEASE:-latest}
-    user: 0:0
+    build:
+      context: .
+      args:
+        IGNITION_VERSION: ${IGN_RELEASE:-latest}
     container_name: ${IGN_NAME:-demo-vcs-modes-dev}
     pull_policy: always
     restart: always
@@ -29,8 +31,6 @@ services:
       - traefik.enable=true
       - traefik.hostname=${IGN_NAME:-demo-vcs-modes-dev}
     environment:
-      IGNITION_UID: ${IGN_UID:-1004}
-      IGNITION_GID: ${IGN_GID:-1004}
       ACCEPT_IGNITION_EULA: 'Y'
       GATEWAY_ADMIN_USERNAME: admin
       GATEWAY_ADMIN_PASSWORD: password
