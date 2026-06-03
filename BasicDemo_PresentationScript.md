@@ -19,11 +19,11 @@
 
 **REESE:** Hi everyone, I'm Reese.
 
-**ADAM:** And I'm Adam. Today we're going to walk you through version controlling an Ignition gateway end to end — projects, configuration, the whole data directory.
+**ADAM:** And I'm Adam. Welcome to Version Control with Ignition — our series on managing an Ignition gateway the same way modern software teams manage their code: with Git, GitHub, and a real deployment pipeline.
 
-**REESE:** By the end of this session you'll have seen how to stand up a local repo on a dev gateway, push it to GitHub, deploy that same configuration to a prod environment, and use deployment modes to keep each environment's settings unique. We'll also do a feature branch and a pull request, just like you would in a real workflow.
+**REESE:** Across this series we go from a single dev gateway all the way to automated, hands-off deployments to production. We'll cover version controlling your projects and your configuration, keeping each environment unique with deployment modes, containerized deployments, releases, and GitHub Actions.
 
-**ADAM:** I'll start off driving — running the commands and clicking around in the designer. Reese is going to explain what we're doing and, more importantly, *why* we're doing it. Later we'll give him a chance to jump on the screen also and run our second environment.
+**ADAM:** Each video builds on the last. Today, in Part 1, we're going to stand up a local repo on a dev gateway, push it to GitHub, deploy that same configuration to a prod environment, and use deployment modes and a feature branch along the way.
 
 ---
 
@@ -55,7 +55,7 @@ And there we go — we have a Git repo.
 
 **ADAM:** The Ignition User Manual has a Version and Source Control Guide, and it includes a sample `.gitignore` for exactly this scenario — tracking the whole data directory. I'm going to create a `.gitignore` here and paste that in.
 
-**REESE:** One small addition Adam is going to make — and you might want to do the same — is adding `ignition.conf` to the gitignore. We'll talk about why in Part 3 when we get to deployment modes. The short version: it lets each gateway run in a different deployment mode without fighting over that file.
+**REESE:** One small addition Adam is going to make — and you might want to do the same — is adding `ignition.conf` to the gitignore. We'll talk about why in in a bit when we get to deployment modes. The short version: it lets each gateway run in a different deployment mode without fighting over that file.
 
 **ADAM:** *(adds ignition.conf to .gitignore and saves)* Done.
 
@@ -112,7 +112,7 @@ git add .
 git commit -m "initial commit"
 ```
 
-**REESE:** And that's Part 1. We have a local repo on the dev gateway, connected to a remote on GitHub, with an initial commit. Now let's actually make a change.
+**REESE:** So that's a start. We have a local repo on the dev gateway, with an initial commit, and have created a remote on GitHub. Now let's actually make a change.
 
 ---
 
@@ -120,7 +120,7 @@ git commit -m "initial commit"
 
 ### Making a change in the designer
 
-**ADAM:** I'm going to open the designer, create a new Perspective view, and drop a label on it with some text.
+**ADAM:** I'm going to open the designer, created a new project, and add a view.
 
 **REESE:** While Adam does that — what we're testing here is whether Git actually picks up changes made through the designer the way we'd expect. Spoiler: it does, because the designer is writing to the same data directory we're tracking.
 
@@ -152,15 +152,7 @@ git commit -m "Added Perspective view"
 git push -u origin master
 ```
 
-Then check our status locally again
-
-```
-git status
-```
-
-Status is clean, local is up to date with the remote.
-
-**REESE:** And if you flip over to GitHub, you'll see the changes reflected there too. That's one full edit-commit-push cycle.
+**REESE:** And if you flip back over to GitHub, you'll see the changes reflected there. That's one full edit-commit-push cycle.
 
 ---
 
@@ -182,7 +174,7 @@ Status is clean, local is up to date with the remote.
 
 **ADAM:** Creating a mode is straightforward from the gateway UI. I'll navigate to **Platform > System > Modes**, click the blue **Create Mode +** button on the right, fill in the name, title, and description — I'll use `dev` for both name and title — and hit **Create Mode**. We can also make a `prod` mode while we're here to use later.
 
-**REESE:** And just so you can see what that did under the hood, modes live on disk at `<IgnitionInstallDirectory>/data/config/resources`. We can see that we still have the core folder in this directory from before, but also have a dev and prod folder for those modes now. You could even create a mode by adding a folder there with its own `config-mode.json`.
+**REESE:** And just so you can see what that did under the hood, modes live on disk at `<IgnitionInstallDirectory>/data/config/resources`. We can see that we still have the core folder in this directory from before, but also have a dev and prod folder for those modes now.
 
 ### Creating an override
 
@@ -190,9 +182,9 @@ Status is clean, local is up to date with the remote.
 
 **REESE:** In that popup, select the mode you want the override to apply to. We'll use the `dev` mode we just made.
 
-**ADAM:** *(creates override)* Now I can edit the System Name property to whatever this dev gateway should be called. Then I hit **Save Changes** in the top right.
+**ADAM:** *(creates override)* Now I can edit the System Name property to whatever this dev gateway should be called. Then I hit **Save Changes** in the top right. I'll create overrides for dev and prod both while we're here.
 
-**REESE:** Same as before, you can see this on disk under `<IgnitionInstallDirectory>/data/config/resources/<mode name>`. And you can author overrides directly in the file system too — just drop the files in and trigger a scan.
+**REESE:** Same as before, you can see this on disk under `<IgnitionInstallDirectory>/data/config/resources/<mode name>`.
 
 ### Activating the mode
 
@@ -213,7 +205,7 @@ Where `<num>` is the next number in the sequence.
 ```
 This will make the gateway start up in our newly created dev deployment mode.
 
-**REESE:** Once that is done restarting Adam will log back in to the gateway and we will see that the main gateway web page now shows the gateway running in teh dev deployment mode we created.
+**REESE:** Once that is done restarting Adam will log back in to the gateway and we will see that the main gateway web page now shows the gateway running in the dev deployment mode we created.
 
 ---
 
@@ -235,7 +227,7 @@ This will make the gateway start up in our newly created dev deployment mode.
 git init .
 git remote add origin <Repo URL>
 git fetch origin
-git reset --hard origin/main
+git reset --hard origin/master
 ```
 
 ### Option B — Fresh install, no data directory yet
@@ -280,76 +272,14 @@ POST http://<gateway-URL>/data/api/v1/scan/config
 
 ---
 
-## Part 5 — Changes in feature branches
-
-### Creating a feature branch on dev
-
-**REESE:** So far we've been working straight on master, which is fine for a demo but not likely how you'd do this in real life. Let's do it properly with a feature branch and a pull request.
-
-**ADAM:** First I'll make sure dev is up to date with master — push or pull anything outstanding. Then:
-
-```
-git checkout -b feature/newFeature
-git push -u origin feature/newFeature
-```
-
-**REESE:** The `feature/` prefix is a convention we're using for this demo — it tells anyone looking at the branch list that this is a feature branch, and the part after the slash describes what feature. If we hop over to GitHub, you can see the new branch there.
-
-### Adding resources on the branch
-
-**ADAM:** Back in designer. I'm going to add a new Motor tag structure from the Dairy Simulator, create a new view, drop a label on it, and drag the motor's amps tag over to bind it.
-
-**REESE:** While Adam saves that — this is the kind of small, focused change you'd typically put in a feature branch. A new tag, a new view, one bound value.
-
-**ADAM:** Saved. Let's see what changed, and get those all pushed to our remtoe repo:
-
-```
-git status
-git add .
-git commit -m "Added motor tag and view"
-git push origin feature/newFeature
-```
-
-### Pull request and merge
-
-**REESE:** Over in GitHub now. Adam will go to the **Pull requests** tab, click **New pull request**, pick the branches — `feature/newFeature` merging into `master` — and click **Create pull request**.
-
-**ADAM:** *(creates PR)* And there it is. In a real workflow this is where your team reviews the diff. No conflicts here, so I'll click **Merge pull request**.
-
-**REESE:** GitHub will then offer to delete the feature branch since it's been merged. Go ahead and do that — keeps your branch list clean.
-
-### Pulling the merged changes to prod
-
-**REESE:** Back on prod:
-
-```
-git pull origin master
-```
-
-**ADAM:** And this time we need to scan for *both* config and project changes, because this PR touched both.
-
-**REESE:** Config scan, same as before — **Platform > Overview**, or:
-
-```
-POST http://<gateway-URL>/data/api/v1/scan/config
-```
-
-And projects — **Platform > Projects** in the UI, or:
-
-```
-POST http://<gateway-URL>/data/api/v1/scan/projects
-```
-
-**ADAM:** Open the project on prod and you should see the new view, the new tag, and the bound amps value live. Full feature, dev to prod, through a pull request.
-
----
-
 ## Closing
 
-**REESE:** So that's the whole loop. A local repo in your data directory, a shared remote on GitHub, deployment modes to keep each environment's quirks isolated, and a real branching workflow for changes.
+**REESE:** So that's the whole loop. A local repo in your data directory, a shared remote on GitHub, deployment modes to keep each environment's quirks isolated, and pushed a change all the from dev to a prod environment.
 
 **ADAM:** A couple of things to remember on your way out: gateway backups are still your disaster recovery — Git doesn't replace them. And after any pull on a target environment, you need to trigger a file system scan for the gateway to actually pick up the changes.
 
-**REESE:** The Version and Source Control Guide in the Ignition user manual has more detail on everything we covered, including the sample `.gitignore` Adam used. 
+**REESE:** The Version and Source Control Guide in the Ignition user manual has more detail on everything we covered, including the sample `.gitignore` Adam used.
+
+**ADAM:** We'll see you in part 2! Where we'll cover version control on containerized deployments, dive deeper into the modes and collecitons, and talk about branching and releases.
 
 **ADAM and REESE:** Thanks for watching!

@@ -2,7 +2,7 @@
 
 ## Part 1 - Containerized Deployments: Tips and Best Practices
 ### Persisting files to version control?
-We've talked previously about only using version control on the files you care about. This could be projects, config, or both. With a containerized environment we have the choice of what files to persist to the host file system vs in a Docker named volume. What we prefer to version control can also help us decide what files we want to persist.
+We saw in the last video a work flow tracking the Ignition data directory. With a containerized environment we have must persist the files we want to track to the host file system as opposed to a Docker named volume.
 If you want both projects and config items and are using containerization for your deployment, only persist the data/projects and data/config/resources directories to the host file system. Them create the local repo on a folder where both of those are persisted. You may even get into more infrastructure related items you would like to version control, like a Docker Compose file, or other environmental defining files.
 
 Share Ignition service in docker-compose.yaml file. Show how volumes are configured.
@@ -35,6 +35,63 @@ docker-compose file line: -Dignition.config.mode=${IGN_MODE:-dev}
 
 This will allow us to pass the deployment mode through our docker image environment variable and not have to touch the ignition.conf file, since we aren't persisting that to the host anymore!
 
+## Part 5 - Changes in feature branches 
+### Create a feature branch on the dev environment
+Lets create a feature branch for some changes. We'll add a tag and a label to display it on a view.
+Make sure you are up to date with the master branch first.
+If not up to date with the origin then push or pull any changes.
+Run the following command to create a feature branch and push it to the remote repo with the following commands:
+```
+git checkout -b feature/newFeature
+git push -u origin feature/newFeature
+```
+feature/newFeature is the name of our new branch, we used this naming convention to identify that branch as being a feature branch and what the name of that feature is. Go to GitHub to view new branch there.
+
+### Add the new resources in designer and push to remote branch
+Open a designer window to this gateway.
+Add a new Motor tag structure from the Dairy Simulator. 
+Create a new view and add a label to it.
+Drag the amps from that motor's tags over to the label and save the designer.
+Now checking the git status will show changes made to some files as well as some new files to track.
+Run the Git add and commit again to commit all those changes locally.
+Then run the following command to push those changes to the remote repo.
+```
+git push origin feature/newFeature
+```
+
+### Pull request and merge in GitHub
+Then check GitHub. You will see that there are new changes in the featureTest branch.
+Review those changes and create a pull request.
+To make a pull request in GitHub select "Pull requests" at the top and select the green "New pull request" button.
+Select the branch you want to merge and which one want it merged into, then select "Create pull request"
+Then go to that pull request and select "merge"
+It should find no conflicts and be allowed to merge. 
+Select Merge pull request.
+GitHub will tell you that the feature/newFeature branch can now be safely deleted. Go ahead and delete the branch.
+
+### Pull those changes to the prod environment
+In the prod environment run the following command to pull all the newly merged changes:
+```
+git pull origin master
+```
+Run the file system scan again. This time for both the config and project files:
+- config
+    - UI: 
+        Platform>Overview
+    - API: 
+        ```
+        http://<gateway-URL>/data/api/v1/scan/config
+        ```
+
+- projects
+    - UI: 
+        Platform>Projects
+    - API: 
+        ```
+        http://<gateway-URL>/data/api/v1/scan/projects
+        ```
+
+Open the project on the prod environment to view changes.
 
 ## Part 2 - Tags, Releases
 ### What are they and why?
